@@ -12,7 +12,7 @@ import SwiftyJSON
 class Webservice{
     
     func fetchDataFromPixabay(withQuery query: String,
-                              page : Int,
+                              
                               success : @escaping (([ImageInformationModel]) -> Void),
                               failure : @escaping ((Error) -> Void)) {
         
@@ -20,7 +20,7 @@ class Webservice{
         
         let parameters = ["key" : "4605957-37b558ec4bd8690ce822e16e7",
                           "q" : query,
-                          "page" : page
+                          
         ] as [String : Any]
         
         NetworkController().GET(URL: URL,

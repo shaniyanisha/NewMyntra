@@ -13,14 +13,15 @@ import AlamofireImage
 
 class mainViewController: UIViewController {
     
+    //typealias dictionary = [[String : Any]]
+
     //MARK: variables
     var favouriteIteamsArray = [[IndexPath]]() //2D aaray  of indexpath
     var rowsToHide = [IndexPath]() // empty array of indexpath
     var sectionShowToHide = [Int]() //empty array having  number of sections (Interger)
     var picturesDataList = [[[ImageInformationModel]]]() //3Dimentional array
     var iteamslist = [[IndexPath]]() //
-    var categories = ["CATS","DOGS","BIRDS"] //array for storing section
-    
+    //var categories = ["CATS","DOGS","BIRDS"] //array for storing section
     
     // Mark : Outlets
     @IBOutlet weak var categorieTableView: UITableView!
@@ -49,23 +50,21 @@ class mainViewController: UIViewController {
              FetchDataFromWebService()
         
         }
-    //this functiopn fetches the data of images for section , rows and cell
-    func FetchDataFromWebService(){
+    //this functiopn fetches the data of images for each section
+     func FetchDataFromWebService(){
         
-        
-        for sections in categories.indices{
-                    var count = 1
-
-            picturesDataList.append([])
+        for sections in JsonData.data.indices{
+                   
+              self.picturesDataList.append([])
             
-            for row in 0...2{
+            for (index,value) in (JsonData.data[sections]["Value"] as! [[String: Any]] ).enumerated(){
                 
                 picturesDataList[sections].append([])
-                Webservice().fetchDataFromPixabay(withQuery: categories[sections] ,
-                                                  page: count ,
+                Webservice().fetchDataFromPixabay(withQuery: value["Sub Category"] as! String ,
+                                                  
                                                   success: { (images : [ImageInformationModel]) in
                                                     
-                                                    self.picturesDataList[sections][row] = images
+                                                    self.picturesDataList[sections][index] = images
                                                     print("hit !!!!11")
                                                     self.categorieTableView.reloadData()
                                                     
@@ -79,7 +78,6 @@ class mainViewController: UIViewController {
                     
                 }
                 
-                count += 1
                 
             }
             
@@ -147,10 +145,16 @@ class mainViewController: UIViewController {
                //Registering the datasourece and delegate
                tableCell.iteamSubCategoriesCollectionView.delegate = self
                tableCell.iteamSubCategoriesCollectionView.dataSource = self
-                tableCell.tableIndexPath = indexPath
+        
                //making action for hideIteamSubCategorie button
                tableCell.hideIteamSubCategorie.addTarget(self, action: #selector(showAndHideDetailsBtnTapped), for: .touchUpInside)
-
+        
+               // saving indexpath for tableCell
+               tableCell.tableIndexPath = indexPath
+        
+               //
+               let data = JsonData.data[indexPath.section]["Value"] as! [[String:Any]]
+               tableCell.iteamCategorie.text = data[indexPath.row]["Sub Category"] as? String
         
                return tableCell
         
@@ -181,7 +185,7 @@ class mainViewController: UIViewController {
                 
                 }
                 //prints each section name on the header of table view
-                header.sectionName.text = categories[section]
+                header.sectionName.text = JsonData.data[section]["Category"] as? String
     
                 //making section button target
                 header.sectionButton.addTarget(self, action: #selector(sectionShowAndHideDetailsBtnTapped), for: .touchUpInside)
@@ -279,8 +283,8 @@ class mainViewController: UIViewController {
         
               guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCellID",for: indexPath)as? CollectionViewCell else {fatalError()}
         
-             // the Collectioncell imageview gets loaded with images present in URL
         
+                       
         
                 // cell.contentImage.backgroundColor = UIColor.getRandomColor
                 cell.layer.borderColor = UIColor.black.cgColor
@@ -328,10 +332,10 @@ class mainViewController: UIViewController {
     //did select function for selection particular cell with animation
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-              _ = collectionView.cellForItem(at: indexPath) as! CollectionViewCell
+              let cell = collectionView.cellForItem(at: indexPath) as! CollectionViewCell
         
-              guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCellID",for: indexPath)as? CollectionViewCell else {fatalError()
-               }
+//              guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionViewCellID",for: indexPath)as? CollectionViewCell else {fatalError()
+//               }
         
               guard let previewImage = self.storyboard?.instantiateViewController(withIdentifier: "imagepreviewVC") as? imagepreviewVC else{
                 
@@ -340,8 +344,7 @@ class mainViewController: UIViewController {
               }
     
     
-                previewImage.imageURL = URL(string: cell.cellData.webformatURL)
-        
+                previewImage.imageURL = cell.contentImage.image
                 UIView.animate(withDuration: 0.75, animations: { () -> Void in
                 UIView.setAnimationCurve(UIViewAnimationCurve.easeInOut)
                 self.navigationController?.pushViewController(previewImage, animated: true)

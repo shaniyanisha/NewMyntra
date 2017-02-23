@@ -13,7 +13,7 @@ class imagepreviewVC: UIViewController {
     @IBOutlet weak var contentImage: UIImageView!
     
     
-    var imageURL : URL!
+    var imageURL : UIImage!
     
     
     
@@ -25,8 +25,7 @@ class imagepreviewVC: UIViewController {
     
     override func viewWillLayoutSubviews() {
         
-        contentImage.af_setImage(withURL: imageURL)
-        
+        contentImage.image = imageURL
         ///imageName.text = titleText
     }
 

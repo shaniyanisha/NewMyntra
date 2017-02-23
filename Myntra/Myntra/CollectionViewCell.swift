@@ -10,8 +10,7 @@ import UIKit
 
 class CollectionViewCell: UICollectionViewCell {
     
-    var cellData : ImageInformationModel!
-    
+        
     //MARK: outlet
     @IBOutlet weak var cellIDNumber: UILabel!
     @IBOutlet weak var favourite: UIButton!
